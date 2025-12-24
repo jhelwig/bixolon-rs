@@ -1,0 +1,29 @@
+[package]
+name = "bixolon"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.92.0"
+license = "MIT"
+description = "Rust library for controlling Bixolon SRP-350plus thermal receipt printers"
+repository = "https://github.com/jhelwig/bixolon-rs"
+keywords = ["printer", "thermal", "receipt", "pos", "escpos"]
+categories = ["hardware-support"]
+
+[features]
+default = []
+async = ["dep:tokio"]
+rusb = ["dep:rusb"]
+hardware-tests = []
+
+[dependencies]
+thiserror = "2"
+miette = { version = "7", features = ["fancy"] }
+
+# Optional async runtime
+tokio = { version = "1", features = ["io-util"], optional = true }
+
+# Optional USB support
+rusb = { version = "0.9", optional = true }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["rt", "macros", "io-util"] }
