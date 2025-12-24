@@ -51,21 +51,21 @@ fn open_printer() -> Printer<std::fs::File, ()> {
 
 /// Print a test header identifying the test.
 fn print_test_header(printer: &mut Printer<std::fs::File, ()>, test_name: &str, description: &str) {
-    printer.send(&bixolon::command::printer_control::Initialize).unwrap();
-    printer.send(&SetJustification(Justification::Center)).unwrap();
+    printer.send(bixolon::command::printer_control::Initialize).unwrap();
+    printer.send(SetJustification(Justification::Center)).unwrap();
     printer.println("=== HARDWARE TEST ===".bold()).unwrap();
     printer.println(test_name.underlined()).unwrap();
-    printer.send(&SetJustification(Justification::Left)).unwrap();
+    printer.send(SetJustification(Justification::Left)).unwrap();
     printer.println(description).unwrap();
-    printer.send(&FeedLines(1)).unwrap();
+    printer.send(FeedLines(1)).unwrap();
 }
 
 /// Print a test footer with verification instructions.
 fn print_test_footer(printer: &mut Printer<std::fs::File, ()>, expected: &str) {
-    printer.send(&FeedLines(1)).unwrap();
+    printer.send(FeedLines(1)).unwrap();
     printer.println("Expected:").unwrap();
     printer.println(expected).unwrap();
-    printer.send(&CutPaper::feed_and_partial(7)).unwrap();
+    printer.send(CutPaper::feed_and_partial(7)).unwrap();
     printer.flush().unwrap();
 }
 
@@ -133,16 +133,16 @@ fn hardware_justification() {
 
     print_test_header(&mut printer, "justification", "Tests text alignment");
 
-    printer.send(&SetJustification(Justification::Left)).unwrap();
+    printer.send(SetJustification(Justification::Left)).unwrap();
     printer.println("Left aligned").unwrap();
 
-    printer.send(&SetJustification(Justification::Center)).unwrap();
+    printer.send(SetJustification(Justification::Center)).unwrap();
     printer.println("Center aligned").unwrap();
 
-    printer.send(&SetJustification(Justification::Right)).unwrap();
+    printer.send(SetJustification(Justification::Right)).unwrap();
     printer.println("Right aligned").unwrap();
 
-    printer.send(&SetJustification(Justification::Left)).unwrap();
+    printer.send(SetJustification(Justification::Left)).unwrap();
 
     print_test_footer(&mut printer, "Left, Center, Right aligned text");
 }
@@ -157,14 +157,14 @@ fn hardware_barcode_code128() {
 
     print_test_header(&mut printer, "barcode_code128", "Tests CODE128 barcode");
 
-    printer.send(&SetBarcodeHeight(80)).unwrap();
-    printer.send(&SetBarcodeWidth(BarcodeWidth::Normal)).unwrap();
-    printer.send(&SetHriPosition(HriPosition::Below)).unwrap();
-    printer.send(&SetHriFont(HriFont::A)).unwrap();
+    printer.send(SetBarcodeHeight(80)).unwrap();
+    printer.send(SetBarcodeWidth(BarcodeWidth::Normal)).unwrap();
+    printer.send(SetHriPosition(HriPosition::Below)).unwrap();
+    printer.send(SetHriFont(HriFont::A)).unwrap();
 
     let barcode = PrintBarcode::new(BarcodeSystem::Code128, b"{A12345").unwrap();
-    printer.send(&barcode).unwrap();
-    printer.send(&FeedLines(1)).unwrap();
+    printer.send(barcode).unwrap();
+    printer.send(FeedLines(1)).unwrap();
 
     print_test_footer(&mut printer, "CODE128 barcode with '12345' below");
 }
@@ -175,12 +175,12 @@ fn hardware_barcode_upc_a() {
 
     print_test_header(&mut printer, "barcode_upc_a", "Tests UPC-A barcode");
 
-    printer.send(&SetBarcodeHeight(100)).unwrap();
-    printer.send(&SetHriPosition(HriPosition::Below)).unwrap();
+    printer.send(SetBarcodeHeight(100)).unwrap();
+    printer.send(SetHriPosition(HriPosition::Below)).unwrap();
 
     let barcode = PrintBarcode::new(BarcodeSystem::UpcA, b"01234567890").unwrap();
-    printer.send(&barcode).unwrap();
-    printer.send(&FeedLines(1)).unwrap();
+    printer.send(barcode).unwrap();
+    printer.send(FeedLines(1)).unwrap();
 
     print_test_footer(&mut printer, "UPC-A barcode for 012345678905 (with check digit)");
 }
@@ -200,8 +200,8 @@ fn hardware_qr_code() {
         .with_module_size(QrModuleSize::Size4)
         .with_error_correction(QrErrorCorrection::M);
 
-    printer.send(&qr).unwrap();
-    printer.send(&FeedLines(1)).unwrap();
+    printer.send(qr).unwrap();
+    printer.send(FeedLines(1)).unwrap();
 
     print_test_footer(&mut printer, "QR code that scans to https://example.com");
 }
@@ -216,8 +216,8 @@ fn hardware_qr_code_sizes() {
     for (label, size) in [(2, Size2), (4, Size4), (6, Size6), (8, Size8)] {
         printer.println(format!("Size {}:", label)).unwrap();
         let qr = PrintQrCode::new(b"TEST".to_vec()).unwrap().with_module_size(size);
-        printer.send(&qr).unwrap();
-        printer.send(&FeedLines(1)).unwrap();
+        printer.send(qr).unwrap();
+        printer.send(FeedLines(1)).unwrap();
     }
 
     print_test_footer(&mut printer, "Four QR codes of increasing size (2, 4, 6, 8)");
@@ -240,8 +240,8 @@ fn hardware_page_mode_basic() {
         .text_line("Line 2")
         .text_line("Line 3");
 
-    printer.print_page_and_exit(&page).unwrap();
-    printer.send(&FeedLines(1)).unwrap();
+    printer.print_page_and_exit(page).unwrap();
+    printer.send(FeedLines(1)).unwrap();
 
     print_test_footer(&mut printer, "Bold header followed by three lines");
 }
@@ -274,8 +274,8 @@ fn hardware_page_mode_positioning() {
         .position(0, 200)
         .text("Y=200");
 
-    printer.print_page_and_exit(&page).unwrap();
-    printer.send(&FeedLines(1)).unwrap();
+    printer.print_page_and_exit(page).unwrap();
+    printer.send(FeedLines(1)).unwrap();
 
     print_test_footer(&mut printer, "Three lines at Y=24, Y=100, Y=200");
 }
@@ -291,9 +291,9 @@ fn hardware_paper_feed() {
     print_test_header(&mut printer, "paper_feed", "Tests paper feed commands");
 
     printer.println("Before feed").unwrap();
-    printer.send(&FeedPaper(50)).unwrap(); // 50 dots
+    printer.send(FeedPaper(50)).unwrap(); // 50 dots
     printer.println("After 50 dots").unwrap();
-    printer.send(&FeedLines(3)).unwrap(); // 3 lines
+    printer.send(FeedLines(3)).unwrap(); // 3 lines
     printer.println("After 3 lines").unwrap();
 
     print_test_footer(&mut printer, "Text with gaps: 50 dots, then 3 lines");
@@ -307,18 +307,18 @@ fn hardware_cut_modes() {
     print_test_header(&mut printer, "cut_modes", "Tests different cut modes");
 
     printer.println("Full cut next:").unwrap();
-    printer.send(&CutPaper::feed_and_full(7)).unwrap();
+    printer.send(CutPaper::feed_and_full(7)).unwrap();
 
     // Give printer time to complete cut
     std::thread::sleep(std::time::Duration::from_millis(500));
 
     printer.println("Partial cut next:").unwrap();
-    printer.send(&CutPaper::feed_and_partial(7)).unwrap();
+    printer.send(CutPaper::feed_and_partial(7)).unwrap();
 
     std::thread::sleep(std::time::Duration::from_millis(500));
 
     printer.println("Feed and partial (5 lines):").unwrap();
-    printer.send(&CutPaper::feed_and_partial(7)).unwrap();
+    printer.send(CutPaper::feed_and_partial(7)).unwrap();
 
     printer.flush().unwrap();
 }
@@ -331,13 +331,13 @@ fn hardware_cut_modes() {
 fn hardware_complete_receipt() {
     let mut printer = open_printer();
 
-    printer.send(&bixolon::command::printer_control::Initialize).unwrap();
+    printer.send(bixolon::command::printer_control::Initialize).unwrap();
 
     // Header
-    printer.send(&SetJustification(Justification::Center)).unwrap();
+    printer.send(SetJustification(Justification::Center)).unwrap();
     printer.println("BIXOLON TEST RECEIPT".bold()).unwrap();
     printer.println("Hardware Test Suite").unwrap();
-    printer.send(&SetJustification(Justification::Left)).unwrap();
+    printer.send(SetJustification(Justification::Left)).unwrap();
 
     printer.println("================================").unwrap();
 
@@ -356,22 +356,22 @@ fn hardware_complete_receipt() {
     printer.println("================================").unwrap();
 
     // Barcode
-    printer.send(&SetJustification(Justification::Center)).unwrap();
-    printer.send(&SetBarcodeHeight(60)).unwrap();
-    printer.send(&SetHriPosition(HriPosition::Below)).unwrap();
+    printer.send(SetJustification(Justification::Center)).unwrap();
+    printer.send(SetBarcodeHeight(60)).unwrap();
+    printer.send(SetHriPosition(HriPosition::Below)).unwrap();
     let barcode = PrintBarcode::new(BarcodeSystem::Code128, b"{A00001").unwrap();
-    printer.send(&barcode).unwrap();
-    printer.send(&FeedLines(1)).unwrap();
+    printer.send(barcode).unwrap();
+    printer.send(FeedLines(1)).unwrap();
 
     // QR Code
     let qr =
         PrintQrCode::new(b"RECEIPT:00001".to_vec()).unwrap().with_module_size(QrModuleSize::Size4);
-    printer.send(&qr).unwrap();
+    printer.send(qr).unwrap();
 
     // Footer
-    printer.send(&FeedLines(1)).unwrap();
+    printer.send(FeedLines(1)).unwrap();
     printer.println("Thank you!").unwrap();
 
-    printer.send(&CutPaper::feed_and_partial(7)).unwrap();
+    printer.send(CutPaper::feed_and_partial(7)).unwrap();
     printer.flush().unwrap();
 }

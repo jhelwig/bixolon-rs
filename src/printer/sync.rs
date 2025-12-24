@@ -54,7 +54,7 @@ impl<W: Write, R> Printer<W, R> {
     /// Send a command to the printer.
     ///
     /// Does not flush - call `flush()` to ensure data is sent.
-    pub fn send(&mut self, cmd: &impl Command) -> Result<&mut Self, PrinterError> {
+    pub fn send(&mut self, cmd: impl Command) -> Result<&mut Self, PrinterError> {
         self.writer.write_all(&cmd.encode())?;
         Ok(self)
     }
@@ -84,20 +84,20 @@ impl<W: Write, R> Printer<W, R> {
     }
 
     /// Print a page mode document.
-    pub fn print_page(&mut self, page: &PageBuilder) -> Result<&mut Self, PrinterError> {
+    pub fn print_page(&mut self, page: PageBuilder) -> Result<&mut Self, PrinterError> {
         self.writer.write_all(&page.build())?;
         Ok(self)
     }
 
     /// Print a page mode document and return to standard mode.
-    pub fn print_page_and_exit(&mut self, page: &PageBuilder) -> Result<&mut Self, PrinterError> {
+    pub fn print_page_and_exit(&mut self, page: PageBuilder) -> Result<&mut Self, PrinterError> {
         self.writer.write_all(&page.build_and_exit())?;
         Ok(self)
     }
 
     /// Initialize the printer (reset to defaults).
     pub fn initialize(&mut self) -> Result<&mut Self, PrinterError> {
-        self.send(&Initialize)
+        self.send(Initialize)
     }
 
     /// Flush the write buffer to the printer.
@@ -153,7 +153,7 @@ impl<W: Write, R: Read> Printer<W, R> {
     /// Execute a query command and parse the response.
     ///
     /// Flushes the write buffer before reading the response.
-    pub fn query<Q: QueryCommand>(&mut self, cmd: &Q) -> Result<Q::Response, PrinterError> {
+    pub fn query<Q: QueryCommand>(&mut self, cmd: Q) -> Result<Q::Response, PrinterError> {
         // Send the query command
         self.writer.write_all(&cmd.encode())?;
         self.writer.flush()?;
@@ -193,7 +193,7 @@ mod tests {
         let buf = Vec::new();
         let mut printer = Printer::new(buf);
 
-        printer.send(&Initialize).unwrap();
+        printer.send(Initialize).unwrap();
         printer.flush().unwrap();
 
         let (inner, _) = printer.into_inner();
@@ -248,7 +248,7 @@ mod tests {
         let mut printer = Printer::new(buf);
 
         let page = PageBuilder::new().text("Test");
-        printer.print_page(&page).unwrap();
+        printer.print_page(page).unwrap();
         printer.flush().unwrap();
 
         let (inner, _) = printer.into_inner();
@@ -279,7 +279,7 @@ mod tests {
         let reader = Cursor::new(vec![0x00u8]); // Simulated response
         let mut printer = Printer::with_reader(writer, reader);
 
-        let result = printer.query(&TransmitStatus(StatusType::Printer));
+        let result = printer.query(TransmitStatus(StatusType::Printer));
         assert!(result.is_ok());
     }
 }
