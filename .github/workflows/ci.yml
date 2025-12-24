@@ -1,0 +1,72 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.92.0
+
+      - name: Install libusb
+        run: sudo apt-get update && sudo apt-get install -y libusb-1.0-0-dev
+
+      - name: Run tests (default features)
+        run: cargo test
+
+      - name: Run tests (async feature)
+        run: cargo test --features async
+
+      - name: Run tests (rusb feature)
+        run: cargo test --features rusb
+
+      - name: Run tests (all features except hardware-tests)
+        run: cargo test --features "async,rusb"
+
+  fmt:
+    name: Rustfmt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.92.0
+          components: rustfmt
+
+      - name: Install libusb
+        run: sudo apt-get update && sudo apt-get install -y libusb-1.0-0-dev
+
+      - name: Check formatting (all features including hardware-tests)
+        run: cargo fmt --all -- --check
+
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.92.0
+          components: clippy
+
+      - name: Install libusb
+        run: sudo apt-get update && sudo apt-get install -y libusb-1.0-0-dev
+
+      - name: Run clippy (all features including hardware-tests)
+        run: cargo clippy --all-features --all-targets -- -D warnings
