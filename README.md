@@ -39,7 +39,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     printer.println("Total".bold().append("        $25.00".bold()))?;
 
     // Cut paper
-    printer.send(&CutPaper::feed_and_partial(3))?;
+    printer.send(CutPaper::feed_and_partial(3))?;
     printer.flush()?;
 
     Ok(())
@@ -110,13 +110,13 @@ let text = "Normal ".append("BOLD".bold()).append(" normal again");
 use bixolon::command::barcode::*;
 
 // Configure barcode appearance
-printer.send(&SetBarcodeHeight(100))?;
-printer.send(&SetBarcodeWidth(BarcodeWidth::Width3))?;
-printer.send(&SetHriPosition(HriPosition::Below))?;
+printer.send(SetBarcodeHeight(100))?;
+printer.send(SetBarcodeWidth(BarcodeWidth::Width3))?;
+printer.send(SetHriPosition(HriPosition::Below))?;
 
 // Print a Code128 barcode
 let barcode = PrintBarcode::new(BarcodeSystem::Code128, b"{A12345")?;
-printer.send(&barcode)?;
+printer.send(barcode)?;
 ```
 
 ### QR Codes
@@ -127,7 +127,7 @@ use bixolon::command::symbol::*;
 let qr = PrintQrCode::new("https://example.com")?
     .with_module_size(QrModuleSize::Size4)?
     .with_error_correction(QrErrorCorrection::M);
-printer.send(&qr)?;
+printer.send(qr)?;
 ```
 
 ### PDF417
@@ -139,7 +139,7 @@ let pdf417 = PrintPdf417::new("Data to encode")?
     .with_module_size(Pdf417ModuleSize::Size3)?
     .with_columns(Pdf417Columns::Auto)?
     .with_error_correction(Pdf417ErrorCorrection::Level2);
-printer.send(&pdf417)?;
+printer.send(pdf417)?;
 ```
 
 ### Page Mode
@@ -164,7 +164,7 @@ printer.send_raw(&page)?;
 use bixolon::command::status::*;
 
 // Requires bidirectional connection (e.g., USB with reader)
-let status = printer.query(&TransmitStatus(StatusType::Printer))?;
+let status = printer.query(TransmitStatus(StatusType::Printer))?;
 if let StatusResponse::Printer(ps) = status {
     if !ps.paper_present {
         println!("Out of paper!");

@@ -45,25 +45,25 @@ macro_rules! capture_output {
 
 #[test]
 fn test_initialize() {
-    let output = capture_output!(|p| p.send(&bixolon::command::printer_control::Initialize));
+    let output = capture_output!(|p| p.send(bixolon::command::printer_control::Initialize));
     assert_eq!(output, vec![0x1B, b'@']);
 }
 
 #[test]
 fn test_line_feed() {
-    let output = capture_output!(|p| p.send(&LineFeed));
+    let output = capture_output!(|p| p.send(LineFeed));
     assert_eq!(output, vec![0x0A]);
 }
 
 #[test]
 fn test_form_feed() {
-    let output = capture_output!(|p| p.send(&FormFeed));
+    let output = capture_output!(|p| p.send(FormFeed));
     assert_eq!(output, vec![0x0C]);
 }
 
 #[test]
 fn test_horizontal_tab() {
-    let output = capture_output!(|p| p.send(&HorizontalTab));
+    let output = capture_output!(|p| p.send(HorizontalTab));
     assert_eq!(output, vec![0x09]);
 }
 
@@ -73,31 +73,31 @@ fn test_horizontal_tab() {
 
 #[test]
 fn test_set_emphasized_on() {
-    let output = capture_output!(|p| p.send(&SetEmphasized(true)));
+    let output = capture_output!(|p| p.send(SetEmphasized(true)));
     assert_eq!(output, vec![0x1B, b'E', 1]);
 }
 
 #[test]
 fn test_set_emphasized_off() {
-    let output = capture_output!(|p| p.send(&SetEmphasized(false)));
+    let output = capture_output!(|p| p.send(SetEmphasized(false)));
     assert_eq!(output, vec![0x1B, b'E', 0]);
 }
 
 #[test]
 fn test_underline_single() {
-    let output = capture_output!(|p| p.send(&SetUnderline(UnderlineThickness::OneDot)));
+    let output = capture_output!(|p| p.send(SetUnderline(UnderlineThickness::OneDot)));
     assert_eq!(output, vec![0x1B, b'-', 1]);
 }
 
 #[test]
 fn test_underline_double() {
-    let output = capture_output!(|p| p.send(&SetUnderline(UnderlineThickness::TwoDot)));
+    let output = capture_output!(|p| p.send(SetUnderline(UnderlineThickness::TwoDot)));
     assert_eq!(output, vec![0x1B, b'-', 2]);
 }
 
 #[test]
 fn test_justification_center() {
-    let output = capture_output!(|p| p.send(&SetJustification(Justification::Center)));
+    let output = capture_output!(|p| p.send(SetJustification(Justification::Center)));
     assert_eq!(output, vec![0x1B, b'a', 1]);
 }
 
@@ -182,25 +182,25 @@ fn test_sibling_styles_isolated() {
 
 #[test]
 fn test_cut_full() {
-    let output = capture_output!(|p| p.send(&CutPaper::full()));
+    let output = capture_output!(|p| p.send(CutPaper::full()));
     assert_eq!(output, vec![0x1D, b'V', 0]);
 }
 
 #[test]
 fn test_cut_partial() {
-    let output = capture_output!(|p| p.send(&CutPaper::partial()));
+    let output = capture_output!(|p| p.send(CutPaper::partial()));
     assert_eq!(output, vec![0x1D, b'V', 1]);
 }
 
 #[test]
 fn test_cut_feed_and_partial() {
-    let output = capture_output!(|p| p.send(&CutPaper::feed_and_partial(5)));
+    let output = capture_output!(|p| p.send(CutPaper::feed_and_partial(5)));
     assert_eq!(output, vec![0x1D, b'V', 66, 5]);
 }
 
 #[test]
 fn test_feed_lines() {
-    let output = capture_output!(|p| p.send(&FeedLines(3)));
+    let output = capture_output!(|p| p.send(FeedLines(3)));
     assert_eq!(output, vec![0x1B, b'd', 3]);
 }
 
@@ -210,26 +210,26 @@ fn test_feed_lines() {
 
 #[test]
 fn test_barcode_height() {
-    let output = capture_output!(|p| p.send(&SetBarcodeHeight(100)));
+    let output = capture_output!(|p| p.send(SetBarcodeHeight(100)));
     assert_eq!(output, vec![0x1D, b'h', 100]);
 }
 
 #[test]
 fn test_barcode_width() {
-    let output = capture_output!(|p| p.send(&SetBarcodeWidth(BarcodeWidth::Wide)));
+    let output = capture_output!(|p| p.send(SetBarcodeWidth(BarcodeWidth::Wide)));
     assert_eq!(output, vec![0x1D, b'w', 5]);
 }
 
 #[test]
 fn test_hri_position_below() {
-    let output = capture_output!(|p| p.send(&SetHriPosition(HriPosition::Below)));
+    let output = capture_output!(|p| p.send(SetHriPosition(HriPosition::Below)));
     assert_eq!(output, vec![0x1D, b'H', 2]);
 }
 
 #[test]
 fn test_print_barcode_code128() {
     let barcode = PrintBarcode::new(BarcodeSystem::Code128, b"{A123").unwrap();
-    let output = capture_output!(|p| p.send(&barcode));
+    let output = capture_output!(|p| p.send(barcode));
 
     let expected = vec![
         0x1D, b'k', 73, 5, // GS k 73 (Code128) length=5
@@ -245,7 +245,7 @@ fn test_print_barcode_code128() {
 #[test]
 fn test_qr_code_hello() {
     let qr = PrintQrCode::new(b"Hello".to_vec()).unwrap();
-    let output = capture_output!(|p| p.send(&qr));
+    let output = capture_output!(|p| p.send(qr));
 
     // Exact expected output for QR code with "Hello" data
     let expected = vec![
@@ -357,15 +357,15 @@ fn test_page_builder_complete() {
 #[test]
 fn test_complete_receipt() {
     let output = capture_output!(|p| {
-        p.send(&bixolon::command::printer_control::Initialize)?;
+        p.send(bixolon::command::printer_control::Initialize)?;
         p.println("RECEIPT".bold())?;
         p.println("--------")?;
         p.println("Item 1    $10.00")?;
         p.println("Item 2    $15.00")?;
         p.println("--------")?;
         p.println("Total".bold().append("     $25.00".bold()))?;
-        p.send(&FeedLines(3))?;
-        p.send(&CutPaper::partial())?;
+        p.send(FeedLines(3))?;
+        p.send(CutPaper::partial())?;
         Ok::<(), bixolon::error::PrinterError>(())
     });
 

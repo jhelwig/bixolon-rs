@@ -55,7 +55,7 @@ impl<W: AsyncWrite + Unpin, R> AsyncPrinter<W, R> {
     /// Send a command to the printer.
     ///
     /// Does not flush - call `flush()` to ensure data is sent.
-    pub async fn send(&mut self, cmd: &impl Command) -> Result<&Self, PrinterError> {
+    pub async fn send(&mut self, cmd: impl Command) -> Result<&Self, PrinterError> {
         self.writer.write_all(&cmd.encode()).await?;
         Ok(self)
     }
@@ -85,20 +85,20 @@ impl<W: AsyncWrite + Unpin, R> AsyncPrinter<W, R> {
     }
 
     /// Print a page mode document.
-    pub async fn print_page(&mut self, page: &PageBuilder) -> Result<&Self, PrinterError> {
+    pub async fn print_page(&mut self, page: PageBuilder) -> Result<&Self, PrinterError> {
         self.writer.write_all(&page.build()).await?;
         Ok(self)
     }
 
     /// Print a page mode document and return to standard mode.
-    pub async fn print_page_and_exit(&mut self, page: &PageBuilder) -> Result<&Self, PrinterError> {
+    pub async fn print_page_and_exit(&mut self, page: PageBuilder) -> Result<&Self, PrinterError> {
         self.writer.write_all(&page.build_and_exit()).await?;
         Ok(self)
     }
 
     /// Initialize the printer (reset to defaults).
     pub async fn initialize(&mut self) -> Result<&Self, PrinterError> {
-        self.send(&Initialize).await?;
+        self.send(Initialize).await?;
         Ok(self)
     }
 
@@ -140,7 +140,7 @@ impl<W: AsyncWrite + Unpin, R: AsyncRead + Unpin> AsyncPrinter<W, R> {
     /// Execute a query command and parse the response.
     ///
     /// Flushes the write buffer before reading the response.
-    pub async fn query<Q: QueryCommand>(&mut self, cmd: &Q) -> Result<Q::Response, PrinterError> {
+    pub async fn query<Q: QueryCommand>(&mut self, cmd: Q) -> Result<Q::Response, PrinterError> {
         // Send the query command
         self.writer.write_all(&cmd.encode()).await?;
         self.writer.flush().await?;
@@ -178,7 +178,7 @@ mod tests {
         let buf = async_cursor(Vec::new());
         let mut printer = AsyncPrinter::new(buf);
 
-        printer.send(&Initialize).await.unwrap();
+        printer.send(Initialize).await.unwrap();
         printer.flush().await.unwrap();
 
         let (inner, _) = printer.into_inner();
@@ -204,7 +204,7 @@ mod tests {
         let mut printer = AsyncPrinter::new(buf);
 
         let page = PageBuilder::new().text("Test");
-        printer.print_page(&page).await.unwrap();
+        printer.print_page(page).await.unwrap();
         printer.flush().await.unwrap();
 
         let (inner, _) = printer.into_inner();
@@ -224,7 +224,7 @@ mod tests {
         let reader = async_cursor(vec![0x00u8]); // Simulated response
         let mut printer = AsyncPrinter::with_reader(writer, reader);
 
-        let result = printer.query(&TransmitStatus(StatusType::Printer)).await;
+        let result = printer.query(TransmitStatus(StatusType::Printer)).await;
         assert!(result.is_ok());
     }
 }

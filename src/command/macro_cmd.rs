@@ -15,11 +15,11 @@ use super::{Command, GS};
 /// # Example
 ///
 /// ```ignore
-/// printer.send(&ToggleMacroDefinition)?;  // Start recording
-/// printer.send(&SetEmphasized(true))?;
-/// printer.send(&PrintText::new("HEADER"))?;
-/// printer.send(&SetEmphasized(false))?;
-/// printer.send(&ToggleMacroDefinition)?;  // End recording
+/// printer.send(ToggleMacroDefinition)?;  // Start recording
+/// printer.send(SetEmphasized(true))?;
+/// printer.send(PrintText::new("HEADER"))?;
+/// printer.send(SetEmphasized(false))?;
+/// printer.send(ToggleMacroDefinition)?;  // End recording
 /// ```
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub struct ToggleMacroDefinition;

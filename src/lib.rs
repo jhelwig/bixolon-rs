@@ -26,7 +26,7 @@
 //! printer.println("Total".bold().append("        $25.00".bold()))?;
 //!
 //! // Cut paper
-//! printer.send(&CutPaper::feed_and_partial(3))?;
+//! printer.send(CutPaper::feed_and_partial(3))?;
 //! printer.flush()?;
 //! ```
 //!
@@ -89,16 +89,16 @@
 //! use bixolon::command::symbol::*;
 //!
 //! // 1D Barcode
-//! printer.send(&SetBarcodeHeight(100))?;
-//! printer.send(&SetHriPosition(HriPosition::Below))?;
+//! printer.send(SetBarcodeHeight(100))?;
+//! printer.send(SetHriPosition(HriPosition::Below))?;
 //! let barcode = PrintBarcode::new(BarcodeSystem::Code128, b"{A12345")?;
-//! printer.send(&barcode)?;
+//! printer.send(barcode)?;
 //!
 //! // QR Code
 //! let qr = PrintQrCode::new("https://example.com")?
 //!     .with_module_size(4)?
 //!     .with_error_correction(QrErrorCorrection::M);
-//! printer.send(&qr)?;
+//! printer.send(qr)?;
 //! ```
 //!
 //! # Status Queries
@@ -111,7 +111,7 @@
 //! let (reader, writer) = /* get USB handles */;
 //! let mut printer = Printer::with_reader(writer, reader);
 //!
-//! let status = printer.query(&TransmitStatus(StatusType::Printer))?;
+//! let status = printer.query(TransmitStatus(StatusType::Printer))?;
 //! if let StatusResponse::Printer(ps) = status {
 //!     if !ps.paper_present {
 //!         println!("Out of paper!");

@@ -29,7 +29,7 @@ use crate::style::text::StyledNode;
 ///     .text("Body text")
 ///     .build();
 ///
-/// printer.send_all(&page)?;
+/// printer.send_all(page)?;
 /// ```
 #[derive(Debug, Clone, Default)]
 pub struct PageBuilder {
@@ -86,7 +86,7 @@ impl PageBuilder {
     }
 
     /// Add a command to the queue.
-    pub fn command(mut self, cmd: &impl Command) -> Self {
+    pub fn command(mut self, cmd: impl Command) -> Self {
         self.commands.push(QueuedCommand::Raw(cmd.encode()));
         self
     }
@@ -219,7 +219,7 @@ mod tests {
     fn page_with_raw_command() {
         use crate::command::paper::CutPaper;
 
-        let page = PageBuilder::new().command(&CutPaper::full()).build();
+        let page = PageBuilder::new().command(CutPaper::full()).build();
 
         // Should contain GS V 0 (full cut)
         assert!(page.windows(3).any(|w| w == [GS, b'V', 0]));
